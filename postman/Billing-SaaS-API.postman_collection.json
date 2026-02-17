@@ -1,0 +1,342 @@
+{
+  "info": {
+    "name": "Billing SaaS API",
+    "description": "Multi-tenant Billing SaaS API. Select environment 'Billing SaaS - Local', run any Login request to save token automatically, then use other requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000/api" },
+    { "key": "token", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Super Admin)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "var json = pm.response.json();",
+                "if (json.token) { pm.environment.set('token', json.token); pm.test('Token saved', function() { pm.expect(json.token).to.be.a('string'); }); }"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"superadmin@billing.test\",\n  \"password\": \"password\"\n}" },
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "Login (Org Owner - Demo)",
+          "event": [{
+            "listen": "test",
+            "script": {
+              "exec": [
+                "var json = pm.response.json();",
+                "if (json.token) { pm.environment.set('token', json.token); pm.test('Token saved', function() { pm.expect(json.token).to.be.a('string'); }); }"
+              ],
+              "type": "text/javascript"
+            }
+          }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"owner@demo.com\",\n  \"password\": \"password\"\n}" },
+            "url": "{{base_url}}/login"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Organization Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"New Company Ltd\",\n  \"legal_name\": \"New Company Private Limited\",\n  \"email\": \"company@example.com\",\n  \"phone\": \"9876543210\",\n  \"gstin\": \"29AABCU9603R1ZM\",\n  \"address\": \"123 Main Street\",\n  \"owner_name\": \"John Owner\",\n  \"owner_email\": \"john@example.com\",\n  \"owner_password\": \"password123\",\n  \"owner_phone\": \"9876543211\",\n  \"subscription_plan_id\": 1\n}"
+            },
+            "url": "{{base_url}}/organizations/register"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"owner@demo.com\"\n}" },
+            "url": "{{base_url}}/forgot-password"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"owner@demo.com\",\n  \"token\": \"RESET_TOKEN_FROM_EMAIL\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}"
+            },
+            "url": "{{base_url}}/password/reset"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Me (after login)",
+      "item": [{
+        "name": "Get current user",
+        "request": {
+          "method": "GET",
+          "header": [{ "key": "Accept", "value": "application/json" }],
+          "url": "{{base_url}}/user"
+        }
+      }]
+    },
+    {
+      "name": "Super Admin",
+      "item": [
+        {
+          "name": "List Plans",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/super/plans"
+          }
+        },
+        {
+          "name": "List Organizations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/super/organizations"
+          }
+        },
+        {
+          "name": "Show Organization",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/super/organizations/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Org Scoped",
+      "item": [
+        {
+          "name": "Org Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/me"
+          }
+        },
+        {
+          "name": "Organization Profile (invoice details)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/profile"
+          }
+        },
+        {
+          "name": "Update Organization Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"Demo Company Pvt Ltd\",\n  \"legal_name\": \"Demo Company Private Limited\",\n  \"email\": \"demo@example.com\",\n  \"phone\": \"9876543210\",\n  \"gstin\": \"29AABCU9603R1ZM\",\n  \"address\": \"123 Demo Street, City - 560001\"\n}"
+            },
+            "url": "{{base_url}}/org/profile"
+          }
+        },
+        {
+          "name": "Usage",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/usage"
+          }
+        },
+        {
+          "name": "Subscription",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/subscription"
+          }
+        },
+        {
+          "name": "List Roles",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/roles"
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/users"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Staff User\",\n  \"email\": \"staff@example.com\",\n  \"phone\": \"9999999999\",\n  \"password\": \"password123\",\n  \"role_id\": 3\n}"
+            },
+            "url": "{{base_url}}/org/users"
+          }
+        },
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/customers"
+          }
+        },
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Customer\",\n  \"email\": \"customer@test.com\",\n  \"phone\": \"9999888877\",\n  \"gstin\": \"27AABCU9603R1Z1\",\n  \"billing_address\": \"456 Customer Ave\"\n}"
+            },
+            "url": "{{base_url}}/org/customers"
+          }
+        },
+        {
+          "name": "Show Customer",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/customers/1"
+          }
+        },
+        {
+          "name": "List Invoices",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/invoices"
+          }
+        },
+        {
+          "name": "Create Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer_id\": 1,\n  \"invoice_no\": \"INV-001\",\n  \"invoice_type\": \"gst\",\n  \"invoice_date\": \"2025-02-09\",\n  \"due_date\": \"2025-03-09\",\n  \"subtotal\": 1000,\n  \"tax_amount\": 180,\n  \"discount_amount\": 0,\n  \"total_amount\": 1180,\n  \"status\": \"draft\",\n  \"items\": [\n    {\n      \"item_name\": \"Service A\",\n      \"quantity\": 1,\n      \"price\": 1000,\n      \"tax_percent\": 18,\n      \"tax_amount\": 180,\n      \"total_amount\": 1180\n    }\n  ]\n}"
+            },
+            "url": "{{base_url}}/org/invoices"
+          }
+        },
+        {
+          "name": "Show Invoice",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/invoices/1"
+          }
+        },
+        {
+          "name": "Get Invoice Items",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/invoices/1/items"
+          }
+        },
+        {
+          "name": "List Vendors",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{base_url}}/org/vendors"
+          }
+        },
+        {
+          "name": "Create Vendor",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Vendor\",\n  \"email\": \"vendor@example.com\",\n  \"phone\": \"8888777766\",\n  \"gstin\": \"07AABCS1234A1Z5\",\n  \"address\": \"100 Industrial Area\"\n}"
+            },
+            "url": "{{base_url}}/org/vendors"
+          }
+        }
+      ]
+    }
+  ]
+}
