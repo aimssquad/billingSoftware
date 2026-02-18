@@ -154,6 +154,7 @@ All Phase 2 tables have **organization_id** and are queried with org scope.
 
 | Need | Document / Place |
 |------|-------------------|
+| **Setup** (clone, install, run after GitHub share) | `docs/SETUP.md` |
 | **Full project scope** (this doc) | `docs/PROJECT-SCOPE.md` |
 | **Every API route** (method, path, body, response, errors) | `docs/API.md` |
 | **Quick start, roles, main endpoints** | `README.md` |
@@ -163,15 +164,15 @@ All Phase 2 tables have **organization_id** and are queried with org scope.
 
 ## 10. Quick start (developer)
 
-```bash
-# 1. Env and key
-cp .env.example .env && php artisan key:generate
+For full steps (clone, prerequisites, .env, mail, troubleshooting), see **`docs/SETUP.md`**.
 
-# 2. DB (e.g. MySQL in .env)
+Minimal steps if the repo is already cloned and Composer deps installed:
+
+```bash
+cp .env.example .env && php artisan key:generate
+# Edit .env: set DB_* (MySQL or SQLite)
 php artisan migrate
 php artisan db:seed
-
-# 3. Run API
 php artisan serve
 # Base URL: http://localhost:8000/api
 ```

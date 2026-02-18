@@ -2,7 +2,9 @@
 
 Multi-tenant billing backend — **API only**, no UI. Use from mobile apps, React, Vue, or any frontend.
 
-**New to the project?** Read **[docs/PROJECT-SCOPE.md](docs/PROJECT-SCOPE.md)** for full scope, phases, roles, multi-tenancy, and architecture.
+**New to the project?**  
+- **Setup (clone, install, run):** [docs/SETUP.md](docs/SETUP.md)  
+- **Understand the system:** [docs/PROJECT-SCOPE.md](docs/PROJECT-SCOPE.md)
 
 ## Quick start
 
@@ -47,7 +49,8 @@ Org-scoped routes require the authenticated user to belong to an organization (o
 
 | Doc | Purpose |
 |-----|---------|
-| **[docs/PROJECT-SCOPE.md](docs/PROJECT-SCOPE.md)** | **Project scope & developer guide** – what we build, phases, roles, multi-tenancy, database, business rules, architecture, auth flow. Start here to understand the system. |
+| **[docs/SETUP.md](docs/SETUP.md)** | **Project setup** – clone, install, .env, database, run, Postman. Use this when you get the GitHub link. |
+| **[docs/PROJECT-SCOPE.md](docs/PROJECT-SCOPE.md)** | **Project scope & developer guide** – what we build, phases, roles, multi-tenancy, database, business rules, architecture. |
 | **[docs/API.md](docs/API.md)** | **API reference** – every route with method, path, request/response bodies, errors, and examples. |
 
 ---
