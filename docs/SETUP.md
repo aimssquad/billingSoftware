@@ -1,6 +1,8 @@
 # Project Setup Guide
 
-Use this guide when you clone the repository (e.g. from GitHub) to get the Billing SaaS API running on your machine.
+Use this guide when you clone the repository to get the Billing SaaS API running on your machine.
+
+**Repository:** https://github.com/aimssquad/billingSoftware
 
 ---
 
@@ -28,14 +30,11 @@ mysql --version
 ## 2. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/billing-software.git
-cd billing-software
+git clone https://github.com/aimssquad/billingSoftware.git
+cd billingSoftware
 ```
 
-Replace `YOUR_USERNAME` (and repo name if different) with the actual GitHub URL you were given, for example:
-
-- `https://github.com/your-org/billing-software.git`
-- or the SSH URL: `git@github.com:your-org/billing-software.git`
+Repository: **https://github.com/aimssquad/billingSoftware**
 
 ---
 
@@ -242,8 +241,8 @@ Replace `/path/to/billing-software` with the actual project path.
 ## Quick copy-paste summary
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/billing-software.git
-cd billing-software
+git clone https://github.com/aimssquad/billingSoftware.git
+cd billingSoftware
 composer install
 cp .env.example .env
 php artisan key:generate

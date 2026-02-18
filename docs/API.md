@@ -2,6 +2,8 @@
 
 Multi-tenant billing API. All routes are prefixed with `/api`. Authentication uses **Laravel Sanctum** (Bearer token).
 
+**Repository:** https://github.com/aimssquad/billingSoftware
+
 ---
 
 ## Table of contents

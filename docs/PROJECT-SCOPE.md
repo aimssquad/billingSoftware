@@ -2,6 +2,8 @@
 
 One document to understand the full project: what we build, for whom, and how it works.
 
+**Repository:** https://github.com/aimssquad/billingSoftware
+
 ---
 
 ## 1. What is this project?
@@ -154,7 +156,7 @@ All Phase 2 tables have **organization_id** and are queried with org scope.
 
 | Need | Document / Place |
 |------|-------------------|
-| **Setup** (clone, install, run after GitHub share) | `docs/SETUP.md` |
+| **Setup** (clone, install, run) | `docs/SETUP.md` |
 | **Full project scope** (this doc) | `docs/PROJECT-SCOPE.md` |
 | **Every API route** (method, path, body, response, errors) | `docs/API.md` |
 | **Quick start, roles, main endpoints** | `README.md` |
