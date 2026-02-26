@@ -8,6 +8,8 @@ use App\Models\Invoice;
 use App\Services\InvoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Mail\InvoiceSentMail;
+use App\Services\TenantMailService;
 
 class InvoiceController extends Controller
 {
@@ -100,6 +102,38 @@ class InvoiceController extends Controller
     {
         if ($invoice->organization_id !== $request->attributes->get('organization_id')) {
             abort(404);
+        }
+    }
+
+    public function sendEmail(Request $request, Invoice $invoice)
+    {
+        $this->ensureSameOrg($request, $invoice);
+
+        $data = $invoice->load('customer', 'items');
+        //dd($data);
+        $organizationId = $request->attributes->get('organization_id');
+
+        try {
+            TenantMailService::send(
+                $organizationId,
+                $invoice,
+                $invoice->customer->email
+            );
+
+            $invoice->update([
+                'status' => 'sent'
+            ]);
+
+            return response()->json([
+                'message' => 'Invoice email sent successfully'
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => 'Failed to send invoice email',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }

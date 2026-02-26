@@ -51,4 +51,14 @@ class Organization extends Model
     {
         return $this->hasMany(Invoice::class, 'organization_id');
     }
+
+    public function paymentGateways()
+    {
+        return $this->hasMany(OrganizationPaymentGateway::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 }

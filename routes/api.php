@@ -2,6 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Org\OrganizationMailSettingController;
+use App\Http\Controllers\Api\Org\InvoiceController;
+use App\Services\TenantMailService;
+use App\Mail\InvoiceSentMail;
+use App\Services\TenantMailConfigService;   
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +21,11 @@ Route::post('/login', [App\Http\Controllers\Api\AuthController::class, 'login'])
 Route::post('/organizations/register', [App\Http\Controllers\Api\OrganizationController::class, 'register']);
 Route::post('/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
 Route::post('/password/reset', [App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
+
+Route::post('/pay', [PaymentController::class, 'pay']);
+Route::post('/webhook/stripe', [PaymentController::class, 'stripeWebhook']);
+Route::post('/webhook/razorpay', [PaymentController::class, 'razorpayWebhook']);
+Route::post('/paypal/capture', [PaymentController::class, 'paypalCapture']);
 
 // Protected (auth:sanctum)
 Route::middleware('auth:sanctum')->group(function () {
@@ -52,6 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Invoices (with limit check in service)
         Route::apiResource('invoices', App\Http\Controllers\Api\Org\InvoiceController::class);
+        Route::post('/invoices/{invoice}/send-email',[InvoiceController::class, 'sendEmail']);
         Route::get('invoices/{invoice}/items', [App\Http\Controllers\Api\Org\InvoiceController::class, 'items']);
 
         // Other sales documents (simple CRUD for now)
@@ -66,5 +77,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('purchase-orders', App\Http\Controllers\Api\Org\PurchaseOrderController::class)->parameters(['purchase-orders' => 'purchase_order']);
         Route::apiResource('purchase-bills', App\Http\Controllers\Api\Org\PurchaseBillController::class)->parameters(['purchase-bills' => 'purchase_bill']);
         Route::apiResource('vendor-credit-notes', App\Http\Controllers\Api\Org\VendorCreditNoteController::class)->parameters(['vendor-credit-notes' => 'vendor_credit_note']);
+
+        // Organization Email settings
+        Route::get('/mail-settings', [OrganizationMailSettingController::class, 'show']);
+        Route::post('/mail-settings', [OrganizationMailSettingController::class, 'storeOrUpdate']);
+        Route::delete('/mail-settings', [OrganizationMailSettingController::class, 'destroy']);
+
     });
 });

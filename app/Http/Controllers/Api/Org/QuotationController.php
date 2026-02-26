@@ -30,7 +30,7 @@ class QuotationController extends Controller
         ]);
         $valid['organization_id'] = $oid;
         $model = Quotation::create($valid);
-        return response()->json(['data' => $model], 201);
+        return response()->json(['data' => $model, 'message'=>'Quoteation stored successfuly'], 201);
     }
 
     public function show(Request $request, Quotation $quotation)
@@ -57,7 +57,7 @@ class QuotationController extends Controller
             'status' => 'in:draft,sent,accepted,rejected',
         ]);
         $quotation->update($valid);
-        return response()->json(['data' => $quotation->fresh()]);
+        return response()->json(['data' => $quotation->fresh(), 'message'=>'Quoteation stored successfuly']);
     }
 
     public function destroy(Request $request, Quotation $quotation)

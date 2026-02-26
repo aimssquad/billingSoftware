@@ -32,8 +32,8 @@ class AuthController extends Controller
                 'email' => ['Account is not active.'],
             ]);
         }
-
-        $user->tokens()->where('name', 'api')->delete();
+    
+        //$user->tokens()->where('name', 'api')->delete();
         $token = $user->createToken('api')->plainTextToken;
 
         return response()->json([

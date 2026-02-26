@@ -17,7 +17,7 @@ class UserController extends Controller
     }
 
     public function store(Request $request)
-    {
+    {   //dd('ok');
         $organizationId = $request->attributes->get('organization_id');
         $valid = $request->validate([
             'name' => 'required|string|max:255',
@@ -26,6 +26,7 @@ class UserController extends Controller
             'password' => 'required|string|min:8',
             'role_id' => 'required|exists:roles,id',
         ]);
+        
         $valid['organization_id'] = $organizationId;
         $valid['password'] = bcrypt($valid['password']);
         $valid['status'] = 'active';

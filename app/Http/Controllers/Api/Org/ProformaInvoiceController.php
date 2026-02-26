@@ -9,8 +9,9 @@ use Illuminate\Http\Request;
 class ProformaInvoiceController extends Controller
 {
     public function index(Request $request)
-    {
+    {   
         $oid = $request->attributes->get('organization_id');
+        //dd($oid);
         $list = ProformaInvoice::where('organization_id', $oid)->with('customer')->latest()->paginate(15);
         return response()->json(['data' => $list]);
     }
@@ -61,7 +62,7 @@ class ProformaInvoiceController extends Controller
     }
 
     public function destroy(Request $request, ProformaInvoice $proforma_invoice)
-    {
+    {   
         if ($proforma_invoice->organization_id !== $request->attributes->get('organization_id')) {
             abort(404);
         }
