@@ -38,26 +38,27 @@ class PaymentController extends Controller
     */
 
     public function pay(Request $request)
-    {
+    {   
         $request->validate([
             'invoice_id' => 'required|exists:invoices,id',
         ]);
-
+        
         $oid = $request->attributes->get('organization_id');
-
+        
         $invoice = Invoice::where('organization_id', $oid)
             ->where('id', $request->invoice_id)
-            ->where('status', 'unpaid')
+            ->where('status', 'sent')
             ->firstOrFail();
-
+        //dd(invoice);
         $gateway = $this->paymentService->getActiveGateway($oid);
-
+        //dd($gateway);
         switch ($gateway->gateway) {
 
             case 'stripe':
                 return $this->payWithStripe($gateway, $invoice);
 
             case 'razorpay':
+                //dd('okhhh');
                 return $this->payWithRazorpay($gateway, $invoice);
 
             case 'paypal':
@@ -142,7 +143,9 @@ class PaymentController extends Controller
 
     private function payWithRazorpay($gateway, $invoice)
     {
-        $secret = Crypt::decryptString($gateway->secret_key);
+        //$secret = Crypt::decryptString($gateway->secret_key);
+        $secret = $gateway->secret_key;
+        //dd($secret);
         $api = new Api($gateway->public_key, $secret);
 
         $order = $api->order->create([
@@ -168,6 +171,30 @@ class PaymentController extends Controller
             'amount' => $invoice->total_amount * 100
         ]);
     }
+
+    // private function payWithRazorpay($gateway, $invoice)
+    // {
+    //     try {
+
+    //         dd('Gateway secret before use:', $gateway->secret_key);
+
+    //         $api = new \Razorpay\Api\Api(
+    //             $gateway->public_key,
+    //             $gateway->secret_key
+    //         );
+
+    //         $order = $api->order->create([
+    //             'receipt' => 'inv_' . $invoice->id,
+    //             'amount' => $invoice->total_amount * 100,
+    //             'currency' => 'INR'
+    //         ]);
+
+    //         dd($order);
+
+    //     } catch (\Exception $e) {
+    //         dd($e->getMessage(), $e->getFile(), $e->getLine());
+    //     }
+    // }
 
     public function razorpayWebhook(Request $request)
     {

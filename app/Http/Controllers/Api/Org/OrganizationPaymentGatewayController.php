@@ -17,7 +17,7 @@ class OrganizationPaymentGatewayController extends Controller
     public function index(Request $request)
     {
         $oid = $request->attributes->get('organization_id');
-
+        //dd($oid);
         $gateways = OrganizationPaymentGateway::where('organization_id', $oid)
             ->get();
 
@@ -41,7 +41,7 @@ class OrganizationPaymentGatewayController extends Controller
         ]);
 
         $oid = $request->attributes->get('organization_id');
-
+        //dd($oid);
         $gateway = OrganizationPaymentGateway::updateOrCreate(
             [
                 'organization_id' => $oid,
@@ -107,4 +107,5 @@ class OrganizationPaymentGatewayController extends Controller
             'message' => 'Gateway deleted successfully'
         ]);
     }
-}
+
+}    

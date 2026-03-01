@@ -14,13 +14,20 @@ use App\Services\TenantMailService;
 class InvoiceController extends Controller
 {
     public function index(Request $request)
-    {
+    {   
         $organizationId = $request->attributes->get('organization_id');
         $invoices = Invoice::where('organization_id', $organizationId)
             ->with('customer')
             ->latest()
             ->paginate(15);
         return InvoiceResource::collection($invoices);
+    }
+
+    public function invoiceList(Request $request)
+    {
+        $organizationId = $request->attributes->get('organization_id');
+        $invoices = Invoice::with(['organization', 'customer', 'items'])->where('organization_id', $organizationId)->get();
+        return response()->json(['data' => $invoices]);
     }
 
     public function store(Request $request): JsonResponse
@@ -59,7 +66,7 @@ class InvoiceController extends Controller
     }
 
     public function show(Request $request, Invoice $invoice)
-    {
+    {   
         $this->ensureSameOrg($request, $invoice);
         $invoice->load('customer', 'items');
         return new InvoiceResource($invoice);

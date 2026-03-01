@@ -15,6 +15,13 @@ class VendorController extends Controller
         return response()->json(['data' => $list]);
     }
 
+    public function allVendors(Request $request)
+    {
+        $oid = $request->attributes->get('organization_id');
+        $list = Vendor::where('organization_id', $oid)->where('status', 'active')->get();
+        return response()->json(['data' => $list]);
+    }
+
     public function store(Request $request)
     {
         $oid = $request->attributes->get('organization_id');

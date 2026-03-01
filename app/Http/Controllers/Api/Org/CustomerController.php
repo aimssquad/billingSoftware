@@ -15,6 +15,13 @@ class CustomerController extends Controller
         return response()->json(['data' => $customers]);
     }
 
+    public function allCustomers(Request $request)
+    {  
+        $organizationId = $request->attributes->get('organization_id');
+        $customers = Customer::where('organization_id', $organizationId)->where('status', 'active')->get();
+        return response()->json(['data' => $customers]);
+    }
+
     public function store(Request $request)
     {
         $organizationId = $request->attributes->get('organization_id');
