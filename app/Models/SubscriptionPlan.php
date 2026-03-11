@@ -29,4 +29,14 @@ class SubscriptionPlan extends Model
     {
         return $this->hasMany(OrganizationSubscription::class, 'subscription_plan_id');
     }
+
+    public function templates()
+    {
+        return $this->belongsToMany(
+            InvoiceTemplate::class,
+            'subscription_plan_templates',
+            'subscription_plan_id',
+            'invoice_template_id'
+        );
+    }
 }

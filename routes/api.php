@@ -11,7 +11,12 @@ use App\Http\Controllers\Api\Org\OrganizationPaymentGatewayController;
 use App\Http\Controllers\Api\Org\PaymentHistoryController;  
 use App\Http\Controllers\Api\Org\PaymentController;
 use App\Http\Controllers\Api\Org\SubscriptionController;
+use App\Http\Controllers\Api\Org\BankAccountController;
+use App\Http\Controllers\Api\Org\OrganizationInvoiceSettingController;
 use App\Http\Controllers\Api\SuperAdmin\SubscriptionPlanController;
+use App\Http\Controllers\Api\SuperAdmin\CountryFieldController;
+use App\Http\Controllers\Api\SuperAdmin\InvoiceTemplateController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +49,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/organizations/{organization}', [App\Http\Controllers\Api\SuperAdmin\OrganizationController::class, 'show']);
         Route::get('/plans', [App\Http\Controllers\Api\SuperAdmin\SubscriptionPlanController::class, 'index']);
         Route::apiResource('subscription-plans', SubscriptionPlanController::class);
+
+        Route::get('country-fields', [CountryFieldController::class, 'index']);
+        Route::post('country-fields', [CountryFieldController::class, 'store']);
+        Route::put('country-fields/{id}', [CountryFieldController::class, 'update']);
+        Route::delete('country-fields/{id}', [CountryFieldController::class, 'destroy']);
+
+        Route::get('country-fields/by-country/{country}', [CountryFieldController::class, 'getByCountry']);
+
+        Route::get('invoice-templates', [InvoiceTemplateController::class, 'index']);
+        Route::post('invoice-templates', [InvoiceTemplateController::class, 'store']);
+        Route::get('invoice-templates/{id}', [InvoiceTemplateController::class, 'show']);
+        Route::post('invoice-templates/{id}', [InvoiceTemplateController::class, 'update']);
+        Route::delete('invoice-templates/{id}', [InvoiceTemplateController::class, 'destroy']);
     });
 
     // Organization-scoped (org_owner, org_user) - require organization in context
@@ -71,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Invoices (with limit check in service)
         Route::get('/invoices/all',[InvoiceController::class, 'invoiceList']);
+        Route::get('/invoices/last-invoice-no', [InvoiceController::class, 'orgLastInvoiceNo']);
         Route::apiResource('invoices', App\Http\Controllers\Api\Org\InvoiceController::class);
         Route::post('/invoices/{invoice}/send-email',[InvoiceController::class, 'sendEmail']);
         Route::get('invoices/{invoice}/items', [App\Http\Controllers\Api\Org\InvoiceController::class, 'items']);
@@ -106,6 +125,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/payments', [PaymentHistoryController::class, 'index']);
         Route::get('/payments/{id}', [PaymentHistoryController::class, 'show']);
+
+        // Bank Details
+        Route::prefix('bank-accounts')->group(function(){
+            Route::get('/',[BankAccountController::class,'index']);
+            Route::post('/',[BankAccountController::class,'store']);
+            Route::get('/{id}',[BankAccountController::class,'show']);
+            Route::post('/{id}',[BankAccountController::class,'update']);
+            Route::post('/{id}/make-primary', [BankAccountController::class, 'makePrimary']);
+            Route::delete('/{id}',[BankAccountController::class,'destroy']);
+        });
+
+        Route::get('invoice-templates', [InvoiceTemplateController::class, 'orgIndex']);
+        Route::get('/invoice-setting', [OrganizationInvoiceSettingController::class,'show']);
+        Route::post('/invoice-setting', [OrganizationInvoiceSettingController::class,'store']);
+        Route::post('/invoice-setting/template', [OrganizationInvoiceSettingController::class,'updateTemplate']);
 
 
 

@@ -17,8 +17,14 @@ class Organization extends Model
         'phone',
         'gstin',
         'address',
+        'country',
         'status',
     ];
+
+    public function countryDetails()
+    {
+        return $this->hasMany(OrganizationCountryDetail::class);
+    }
 
     public function users(): HasMany
     {
@@ -60,5 +66,15 @@ class Organization extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function bankDetails()
+    {
+        return $this->hasMany(BankDetail::class);
+    }
+
+    public function invoiceSetting()
+    {
+        return $this->hasOne(OrganizationInvoiceSetting::class);
     }
 }

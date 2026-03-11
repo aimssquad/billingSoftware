@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('phone', 20)->nullable();
             $table->string('gstin', 20)->nullable();
             $table->text('address')->nullable();
+            $table->string('country')->nullable();
             $table->enum('status', ['active', 'suspended', 'closed'])->default('active');
             $table->timestamps();
         });

@@ -113,9 +113,9 @@ class InvoiceController extends Controller
     }
 
     public function sendEmail(Request $request, Invoice $invoice)
-    {
+    {   
         $this->ensureSameOrg($request, $invoice);
-
+        //dd('okk');
         $data = $invoice->load('customer', 'items');
         //dd($data);
         $organizationId = $request->attributes->get('organization_id');
@@ -142,5 +142,64 @@ class InvoiceController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    // public function orgLastInvoiceNo(Request $request)
+    // {
+    //     $organizationId = $request->attributes->get('organization_id');
+
+    //     $lastInvoice = Invoice::where('organization_id', $organizationId)
+    //                     ->orderBy('id','desc')
+    //                     ->first();
+
+    //     if ($lastInvoice) {
+    //         $invoiceNo = $lastInvoice->invoice_no+1;
+    //     } else {
+
+    //         $year  = date('Y');
+    //         $month = date('m');
+
+    //         $invoiceNo = 'INV' . $year . $month . '0001';
+    //     }
+
+    //     return response()->json([
+    //         'last_invoice_no' => $invoiceNo
+    //     ]);
+    // }
+
+    public function orgLastInvoiceNo(Request $request)
+    {
+        $organizationId = $request->attributes->get('organization_id');
+
+        $lastInvoice = Invoice::where('organization_id', $organizationId)
+                        ->orderBy('id','desc')
+                        ->first();
+
+        if ($lastInvoice) {
+
+            $lastInvoiceNo = $lastInvoice->invoice_no;
+
+            // extract number part (last 4 digits)
+            $number = (int) substr($lastInvoiceNo, -4);
+
+            // increase number
+            $number++;
+
+            // rebuild invoice number
+            $prefix = substr($lastInvoiceNo, 0, -4);
+
+            $invoiceNo = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
+
+        } else {
+
+            $year  = date('Y');
+            $month = date('m');
+
+            $invoiceNo = 'INV' . $year . $month . '0001';
+        }
+
+        return response()->json([
+            'last_invoice_no' => $invoiceNo
+        ]);
     }
 }

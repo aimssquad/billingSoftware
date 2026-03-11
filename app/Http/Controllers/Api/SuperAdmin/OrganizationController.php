@@ -21,7 +21,7 @@ class OrganizationController extends Controller
 
     public function show(Organization $organization)
     {
-        $organization->load('activeSubscription.plan', 'settings');
+        $organization->load('activeSubscription.plan', 'settings','countryDetails');
         return new OrganizationResource($organization);
     }
 }
