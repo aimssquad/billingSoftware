@@ -68,7 +68,7 @@ class InvoiceController extends Controller
     public function show(Request $request, Invoice $invoice)
     {   
         $this->ensureSameOrg($request, $invoice);
-        $invoice->load('customer', 'items');
+        $invoice->load('customer', 'items','organization');
         return new InvoiceResource($invoice);
     }
 
