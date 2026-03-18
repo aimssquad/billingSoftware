@@ -119,7 +119,7 @@ class CountryFieldController extends Controller
 
     public function country()
     {
-        $templates = CountryField::where('status', true)->select('country')->get();
+        $templates = CountryField::where('is_active', true)->select('country')->get();
 
         return response()->json([
             'success' => true,
