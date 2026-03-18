@@ -16,7 +16,7 @@ class ProfileController extends Controller
     public function show(Request $request)
     {
         $organization = $request->attributes->get('organization');
-        $organization->load('settings', 'activeSubscription.plan');
+        $organization->load('settings', 'activeSubscription.plan','countryDetails');
 
         $sub = $organization->activeSubscription;
         $usageSummary = app(UsageTrackingService::class)->getUsageSummary($organization->id);
@@ -72,7 +72,13 @@ class ProfileController extends Controller
                 'purchase_count' => $usageSummary['purchase_count'] ?? 0,
             ],
 
-            'dynamic_field' => $orgDynamicField->map(function ($field) {
+           'dynamic_field' => $orgDynamicField->map(function ($field) use ($organization) {
+
+                // Find saved value
+                $saved = $organization->countryDetails
+                    ->where('field_key', $field->field_key)
+                    ->first();
+
                 return [
                     'id' => $field->id,
                     'country' => $field->country,
@@ -81,7 +87,11 @@ class ProfileController extends Controller
                     'field_type' => $field->field_type,
                     'is_required' => (bool) $field->is_required,
                     'is_active' => (bool) $field->is_active,
+
+                    // ✅ IMPORTANT: attach saved value
+                    'value' => $saved ? $saved->field_value : null,
                 ];
+
             })->values(),
         ]);
     }
