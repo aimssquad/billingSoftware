@@ -10,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Mail\InvoiceSentMail;
 use App\Services\TenantMailService;
+use App\Services\PaymentGatewayService;
+use Razorpay\Api\Api;
 
 class InvoiceController extends Controller
 {
@@ -113,29 +115,102 @@ class InvoiceController extends Controller
         }
     }
 
+    // public function sendEmail(Request $request, Invoice $invoice)
+    // {   
+    //     $this->ensureSameOrg($request, $invoice);
+    //     //dd('okk');
+    //     //$data = $invoice->load('customer', 'items');
+    //     $invoice->load(
+    //         'customer',
+    //         'items',
+    //         'organization.invoiceSetting.template',
+    //         'organization.defaultBankAccount'
+    //     );
+    //     //dd($invoice);
+    //     $organizationId = $request->attributes->get('organization_id');
+
+    //     try {
+    //         TenantMailService::send(
+    //             $organizationId,
+    //             $invoice,
+    //             $invoice->customer->email
+    //         );
+
+    //         $invoice->update([
+    //             'status' => 'sent'
+    //         ]);
+
+    //         return response()->json([
+    //             'message' => 'Invoice email sent successfully'
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'message' => 'Failed to send invoice email',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
     public function sendEmail(Request $request, Invoice $invoice)
-    {   
+    {
         $this->ensureSameOrg($request, $invoice);
-        //dd('okk');
-        //$data = $invoice->load('customer', 'items');
+
         $invoice->load(
             'customer',
             'items',
-            'organization.invoiceSetting.template'
+            'organization.invoiceSetting.template',
+            'organization.defaultBankAccount'
         );
-        dd($invoice);
+
         $organizationId = $request->attributes->get('organization_id');
 
         try {
+
+            // ✅ Get active gateway
+            $gateway = app(PaymentGatewayService::class)
+                ->getActiveGateway($organizationId);
+
+            $paymentLink = null;
+
+            // ✅ Only for Razorpay
+            if ($gateway && $gateway->isRazorpay()) {
+
+                $razor = new Api(
+                    $gateway->public_key,
+                    $gateway->secret_key
+                );
+
+                $link = $razor->paymentLink->create([
+                    'amount' => $invoice->total_amount * 100,
+                    'currency' => 'INR',
+                    'description' => 'Invoice #' . $invoice->invoice_no,
+
+                    'customer' => [
+                        'name' => $invoice->customer->name,
+                        'email' => $invoice->customer->email,
+                        'contact' => $invoice->customer->phone,
+                    ]
+                ]);
+
+                $paymentLink = $link['short_url'];
+
+                // ✅ Save link in DB
+                $invoice->update([
+                    'payment_link' => $paymentLink
+                ]);
+            }
+
+            // ✅ Send email with link
             TenantMailService::send(
                 $organizationId,
                 $invoice,
-                $invoice->customer->email
+                $invoice->customer->email,
+                $paymentLink
             );
 
-            $invoice->update([
-                'status' => 'sent'
-            ]);
+            $invoice->update(['status' => 'sent']);
 
             return response()->json([
                 'message' => 'Invoice email sent successfully'
@@ -149,29 +224,6 @@ class InvoiceController extends Controller
             ], 500);
         }
     }
-
-    // public function orgLastInvoiceNo(Request $request)
-    // {
-    //     $organizationId = $request->attributes->get('organization_id');
-
-    //     $lastInvoice = Invoice::where('organization_id', $organizationId)
-    //                     ->orderBy('id','desc')
-    //                     ->first();
-
-    //     if ($lastInvoice) {
-    //         $invoiceNo = $lastInvoice->invoice_no+1;
-    //     } else {
-
-    //         $year  = date('Y');
-    //         $month = date('m');
-
-    //         $invoiceNo = 'INV' . $year . $month . '0001';
-    //     }
-
-    //     return response()->json([
-    //         'last_invoice_no' => $invoiceNo
-    //     ]);
-    // }
 
     public function orgLastInvoiceNo(Request $request)
     {

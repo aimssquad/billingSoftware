@@ -21,7 +21,8 @@ class InvoiceSentMail extends Mailable
         public string $siteUrl,
         public string $fromAddress,
         public string $fromName,
-        public string $template
+        public string $template,
+        public ?string $paymentLink = null
     ) {}
 
     // public function envelope(): Envelope

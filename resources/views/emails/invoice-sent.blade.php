@@ -18,6 +18,24 @@
 
 <p>You can view your invoice using the link below:</p>
 
+@if($paymentLink)
+<br>
+
+<p>
+    <a href="{{ $paymentLink }}"
+       style="background:#2563eb;
+              color:white;
+              padding:12px 20px;
+              border-radius:6px;
+              text-decoration:none;
+              display:inline-block;
+              font-weight:bold;">
+        💳 Pay Now
+    </a>
+</p>
+
+@endif
+
 <p>
     <a href="{{ $siteUrl }}/invoices/{{ $invoice->id }}">
         View Invoice

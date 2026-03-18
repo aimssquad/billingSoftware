@@ -8,7 +8,7 @@ use App\Mail\InvoiceSentMail;
 
 class TenantMailService
 {
-    public static function send($organizationId, $invoice, $to)
+    public static function send($organizationId, $invoice, $to,$paymentLink = null)
     {
         $mailSetting = OrganizationMailSetting::where('organization_id', $organizationId)
             ->where('is_active', true)
@@ -23,7 +23,7 @@ class TenantMailService
             ->first();
 
         $templateSlug = $invoiceSetting?->template?->slug ?? 'default';
-
+        //dd($organizationId);
         TenantMailConfigService::configure($organizationId);
 
         Mail::mailer('tenant')
@@ -34,7 +34,8 @@ class TenantMailService
                     config('app.frontend_url'),
                     $mailSetting->from_address,
                     $mailSetting->from_name,
-                    $templateSlug // ✅ pass template
+                    $templateSlug, // ✅ pass template
+                    $paymentLink
                 )
             );
     }

@@ -307,4 +307,35 @@ class PaymentController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+
+    private function createRazorpayPaymentLink($gateway, $invoice)
+    {
+        $api = new Api(
+            $gateway->public_key,
+            $gateway->secret_key
+        );
+
+        $paymentLink = $api->paymentLink->create([
+            'amount' => $invoice->total_amount * 100,
+            'currency' => 'INR',
+            'description' => 'Invoice #' . $invoice->invoice_no,
+
+            'customer' => [
+                'name' => $invoice->customer->name,
+                'email' => $invoice->customer->email,
+                'contact' => $invoice->customer->phone,
+            ],
+
+            'notify' => [
+                'sms' => true,
+                'email' => true
+            ],
+
+            'callback_url' => config('app.url') . '/payment-success',
+            'callback_method' => 'get'
+        ]);
+
+        return $paymentLink;
+    }
 }

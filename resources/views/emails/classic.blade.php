@@ -515,8 +515,8 @@
                             <div class="qr-code">
                                 <div style="text-align: center;">
                                     <div style="font-size: 8px; margin-bottom: 2px;">Scan to Pay</div>
-                                    <div style="font-size: 16px;">⬛⬛</div>
-                                    <div style="font-size: 16px;">⬛⬛</div>
+                                    <div style="font-size: 16px;"><img src="{{ $invoice->organization->defaultBankAccount->qr_code_url }}" width="80"></div>
+                                    {{-- <div style="font-size: 16px;">⬛⬛</div> --}}
                                     <div style="font-size: 8px; margin-top: 2px;">UPI QR</div>
                                 </div>
                             </div>
@@ -528,7 +528,10 @@
                                 <div class="upi-info">
                                     <span class="label">UPI ID:</span>
                                     <div>
-                                        <span class="value">techcorp@okhdfcbank</span>
+                                        {{-- <span class="value">techcorp@okhdfcbank</span> --}}
+                                        <span class="value">
+                                        {{ $invoice->organization->defaultBankAccount->upi_id ?? '-' }}
+                                        </span>
                                         <span class="copy-btn" style="margin-left: 8px;">📋</span>
                                     </div>
                                 </div>
@@ -550,7 +553,10 @@
                             <div class="bank-detail">
                                 <span class="label">Account:</span>
                                 <div>
-                                    <span class="value">12345678901</span>
+                                    {{-- <span class="value">12345678901</span> --}}
+                                    <span class="value">
+                                    {{ $invoice->organization->defaultBankAccount->account_number ?? '-' }}
+                                    </span>
                                     <span class="copy-btn" style="margin-left: 8px;">📋</span>
                                 </div>
                             </div>
@@ -558,14 +564,20 @@
                             <div class="bank-detail">
                                 <span class="label">IFSC:</span>
                                 <div>
-                                    <span class="value">HDFC0001234</span>
+                                    {{-- <span class="value">HDFC0001234</span> --}}
+                                    <span class="value">
+                                    {{ $invoice->organization->defaultBankAccount->ifsc_code ?? '-' }}
+                                    </span>
                                     <span class="copy-btn" style="margin-left: 8px;">📋</span>
                                 </div>
                             </div>
                             
                             <div class="bank-detail">
                                 <span class="label">Bank:</span>
-                                <span class="value">HDFC Bank</span>
+                                {{-- <span class="value">HDFC Bank</span> --}}
+                                <span class="value">
+                                {{ $invoice->organization->defaultBankAccount->bank_name ?? '-' }}
+                                </span>
                             </div>
                         </div>
                         

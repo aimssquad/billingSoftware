@@ -68,9 +68,21 @@ class Organization extends Model
         return $this->hasMany(Payment::class);
     }
 
-    public function bankDetails()
+    // public function bankDetails()
+    // {
+    //     return $this->hasMany(BankDetail::class);
+    // }
+
+    public function bankAccounts()
     {
-        return $this->hasMany(BankDetail::class);
+        return $this->hasMany(BankAccount::class, 'organization_id');
+    }
+
+   
+    public function defaultBankAccount()
+    {
+        return $this->hasOne(BankAccount::class, 'organization_id')
+            ->where('is_default', true);
     }
 
     public function invoiceSetting()

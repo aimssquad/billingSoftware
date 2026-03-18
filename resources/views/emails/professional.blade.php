@@ -585,18 +585,22 @@
         <!-- HEADER with Angled Block -->
         <div class="header">
             <div class="company-info">
-                <h1 class="company-name">YOUR COMPANY NAME</h1>
+                <h1 class="company-name">
+                {{ $invoice->organization->company_name }}
+                </h1>
                 <p class="template-badge">PROFESSIONAL INVOICE TEMPLATE</p>
             </div>
             
             <div class="angled-block">
                 <div class="invoice-details">
                     <p>
-                        Invoice #: <span class="invoice-number">INV-PRO-2024-001</span>
+                        Invoice No: <span class="invoice-number">
+                        {{ $invoice->invoice_no }}
+                        </span>
                         <span style="margin-left: 4px;">📋</span>
                     </p>
-                    <p>Invoice Date: March 28, 2024</p>
-                    <p>Due Date: April 27, 2024</p>
+                    <p>Invoice Date: {{ $invoice->invoice_date->format('F d, Y') }}</p>
+                    <p>Due Date: {{ $invoice->due_date->format('F d, Y') }}</p>
                 </div>
             </div>
         </div>
@@ -611,23 +615,22 @@
                         <span class="section-icon">🏢</span>
                         From
                     </h3>
-                    <p class="company-name-bold">Your Company Name</p>
-                    <p class="company-detail">123 Business Street</p>
+                    <p class="company-name-bold">
+                    {{ $invoice->organization->company_name }}
+                    </p>
+                    <p class="company-detail">
+                    {{ $invoice->organization->address }}
+                    </p>
                     <p class="company-detail">City, State Code</p>
                     
                     <div class="detail-with-icon">
                         <span style="color: #9ca3af;">✉️</span>
-                        <span>info@company.com</span>
-                    </div>
-                    
-                    <div class="detail-with-icon">
-                        <span style="color: #9ca3af;">🌐</span>
-                        <span>www.company.com</span>
+                        <span>{{ $invoice->organization->email }}</span>
                     </div>
                     
                     <div class="detail-with-icon">
                         <span style="color: #9ca3af;">#</span>
-                        <span>GST: 22AAAAA0000A1Z5</span>
+                        <span>GST: {{ $invoice->organization->gstin }}</span>
                     </div>
                 </div>
                 
@@ -637,23 +640,24 @@
                         <span class="section-icon">🏢</span>
                         Bill To
                     </h3>
-                    <p class="company-name-bold">TechCorp Solutions Inc.</p>
-                    <p class="company-detail">789 Innovation Drive</p>
-                    <p class="company-detail">San Francisco, CA 94107</p>
+                    <p class="company-name-bold">
+                    {{ $invoice->customer->name }}
+                    </p>
+                    {{ $invoice->customer->billing_address }}
                     
                     <div class="detail-with-icon">
                         <span style="color: #9ca3af;">✉️</span>
-                        <span>accounts@techcorp.com</span>
+                        <span>{{ $invoice->customer->email }}</span>
                     </div>
                     
                     <div class="detail-with-icon">
                         <span style="color: #9ca3af;">📞</span>
-                        <span>+1 (555) 987-6543</span>
+                        <span>{{ $invoice->customer->phone }}</span>
                     </div>
                     
                     <div class="detail-with-icon">
                         <span style="color: #9ca3af;">#</span>
-                        <span>GST: 36AABCT1234F1Z8</span>
+                        <span>GST: {{ $invoice->customer->gstin }}</span>
                         <span style="margin-left: 4px;">📋</span>
                     </div>
                 </div>
@@ -672,34 +676,15 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach($invoice->items as $item)
                         <tr>
-                            <td class="item-name">Enterprise Software License</td>
-                            <td>5</td>
-                            <td>$299.00</td>
-                            <td>18%</td>
-                            <td class="item-amount">$1,764.10</td>
+                            <td class="item-name">{{ $item->item_name }}</td>
+                            <td>{{ $item->quantity }}</td>
+                            <td>₹{{ number_format($item->price, 2) }}</td>
+                            <td>{{ $item->tax_percent }}%</td>
+                            <td class="item-amount">₹{{ number_format($item->total_amount, 2) }}</td>
                         </tr>
-                        <tr>
-                            <td class="item-name">Cloud Hosting Services (Annual)</td>
-                            <td>2</td>
-                            <td>$599.00</td>
-                            <td>18%</td>
-                            <td class="item-amount">$1,413.64</td>
-                        </tr>
-                        <tr>
-                            <td class="item-name">Premium Support Package</td>
-                            <td>1</td>
-                            <td>$499.00</td>
-                            <td>18%</td>
-                            <td class="item-amount">$588.82</td>
-                        </tr>
-                        <tr>
-                            <td class="item-name">API Integration Services</td>
-                            <td>8</td>
-                            <td>$125.00</td>
-                            <td>18%</td>
-                            <td class="item-amount">$1,180.00</td>
-                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -719,8 +704,11 @@
                             <div class="qr-code">
                                 <div class="qr-placeholder">
                                     <small>Scan to</small>
-                                    <div class="qr-pattern">⬛⬛</div>
-                                    <div class="qr-pattern">⬛⬛</div>
+                                    @if($invoice->organization->defaultBankAccount?->qr_code_url)
+                                        <img src="{{ $invoice->organization->defaultBankAccount->qr_code_url }}" width="90">
+                                    @else
+                                        <small>Scan to</small>
+                                    @endif
                                     <small>Pay</small>
                                 </div>
                             </div>
@@ -734,14 +722,15 @@
                                 <div class="upi-row">
                                     <span class="label">UPI ID:</span>
                                     <span class="value">
-                                        techcorp@okhdfcbank
-                                        <span class="copy-btn">📋</span>
+                                    {{ $invoice->organization->defaultBankAccount->upi_id ?? '-' }}
                                     </span>
                                 </div>
                                 
                                 <div class="upi-row">
                                     <span class="label">Merchant:</span>
-                                    <span class="value">TechCorp Solutions</span>
+                                    <span class="value">
+                                    {{ $invoice->organization->company_name }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -759,7 +748,9 @@
                                         <div class="bank-card">
                                             <p class="bank-label">Account</p>
                                             <div class="bank-value-wrapper">
-                                                <span class="bank-value">12345678901</span>
+                                                <span class="bank-value">
+                                                {{ $invoice->organization->defaultBankAccount->account_number ?? '-' }}
+                                                </span>
                                                 <span class="copy-btn">📋</span>
                                             </div>
                                         </div>
@@ -768,7 +759,9 @@
                                         <div class="bank-card">
                                             <p class="bank-label">IFSC</p>
                                             <div class="bank-value-wrapper">
-                                                <span class="bank-value">HDFC0001234</span>
+                                                <span class="bank-value">
+                                                {{ $invoice->organization->defaultBankAccount->ifsc_code ?? '-' }}
+                                                </span>
                                                 <span class="copy-btn">📋</span>
                                             </div>
                                         </div>
@@ -778,7 +771,9 @@
                             
                             <div class="full-width-card">
                                 <p class="bank-label">Bank</p>
-                                <span class="bank-value">HDFC Bank - Corporate Branch</span>
+                                <span class="bank-value">
+                                {{ $invoice->organization->defaultBankAccount->bank_name ?? '-' }}
+                                </span>
                             </div>
                         </div>
                         
@@ -796,22 +791,30 @@
                     <div class="totals-card">
                         <div class="total-row">
                             <span class="total-label">Subtotal</span>
-                            <span class="total-value">$4,446.56</span>
+                            <span class="total-value">
+                            ₹{{ number_format($invoice->subtotal, 2) }}
+                            </span>
                         </div>
                         
                         <div class="total-row">
                             <span class="total-label">Tax Amount</span>
-                            <span class="total-value">$800.00</span>
+                            <span class="total-value">
+                            ₹{{ number_format($invoice->tax_amount, 2) }}
+                            </span>
                         </div>
                         
                         <div class="discount-row">
                             <span>Discount</span>
-                            <span>-$300.00</span>
+                            <span>
+                            -₹{{ number_format($invoice->discount_amount, 2) }}
+                            </span>
                         </div>
                         
                         <div class="total-due">
                             <span class="total-due-label">Total Due</span>
-                            <span class="total-due-value">$4,946.56</span>
+                            <span class="total-due-value">
+                            ₹{{ number_format($invoice->total_amount, 2) }}
+                            </span>
                         </div>
                         
                         <!-- Payment Status -->
@@ -839,80 +842,6 @@
                 <p class="footer-thanks">Thank you for your business!</p>
             </div>
             
-        </div>
-    </div>
-    
-    <!-- Alternative Paid Version -->
-    <div class="email-container" style="margin-top: 24px;">
-        <div class="header">
-            <div class="company-info">
-                <h1 class="company-name">YOUR COMPANY NAME</h1>
-                <p class="template-badge">PROFESSIONAL INVOICE TEMPLATE</p>
-            </div>
-            <div class="angled-block">
-                <div class="invoice-details">
-                    <p>Invoice #: <span class="invoice-number">INV-PRO-2024-002</span></p>
-                    <p>Invoice Date: March 25, 2024</p>
-                    <p>Due Date: April 24, 2024</p>
-                </div>
-            </div>
-        </div>
-        
-        <div class="content">
-            <div class="info-grid">
-                <div class="info-left">
-                    <h3 class="section-header"><span>🏢</span>From</h3>
-                    <p class="company-name-bold">Your Company Name</p>
-                    <p class="company-detail">123 Business Street, City</p>
-                    <div class="detail-with-icon"><span>✉️</span>info@company.com</div>
-                </div>
-                <div class="info-right">
-                    <h3 class="section-header"><span>🏢</span>Bill To</h3>
-                    <p class="company-name-bold">Startup Innovations LLC</p>
-                    <p class="company-detail">456 Tech Boulevard, Austin, TX</p>
-                    <div class="detail-with-icon"><span>✉️</span>finance@startup.io</div>
-                </div>
-            </div>
-            
-            <div class="table-container">
-                <table class="items-table">
-                    <thead><tr><th>Description</th><th>Qty</th><th>Price</th><th>Tax</th><th>Amount</th></tr></thead>
-                    <tbody>
-                        <tr><td>Consulting Services</td><td>15</td><td>$200.00</td><td>10%</td><td class="item-amount">$3,300.00</td></tr>
-                        <tr><td>Software License</td><td>3</td><td>$150.00</td><td>10%</td><td class="item-amount">$495.00</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="bottom-grid">
-                <div class="payment-section">
-                    <div class="payment-card">
-                        <h3 class="payment-title">💳 Payment Information</h3>
-                        <div style="background: white; border-radius: 6px; padding: 16px; text-align: center;">
-                            <p style="margin: 0; color: #16a34a; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                <span style="font-size: 16px;">✓</span> Payment Received
-                            </p>
-                            <p style="margin: 8px 0 0; font-size: 12px; color: #6b7280;">Transaction ID: TXN987654321</p>
-                            <p style="margin: 4px 0 0; font-size: 11px; color: #9ca3af;">Paid on: March 27, 2024</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="total-section">
-                    <div class="totals-card">
-                        <div class="total-row"><span>Subtotal</span><span>$3,795.00</span></div>
-                        <div class="total-row"><span>Tax</span><span>$379.50</span></div>
-                        <div class="total-due"><span>Total</span><span class="total-due-value">$4,174.50</span></div>
-                        <div class="status-badge status-paid">
-                            <p class="status-paid-text"><span>✓</span> Payment Received</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="invoice-footer">
-                <p class="footer-note">This is a computer generated invoice. No signature required.</p>
-                <p class="footer-thanks">Thank you for your business!</p>
-            </div>
         </div>
     </div>
 </body>
