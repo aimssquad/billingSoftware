@@ -75,6 +75,6 @@ class Organization extends Model
 
     public function invoiceSetting()
     {
-        return $this->hasOne(OrganizationInvoiceSetting::class);
+        return $this->hasOne(OrganizationInvoiceSetting::class, 'organization_id');
     }
 }

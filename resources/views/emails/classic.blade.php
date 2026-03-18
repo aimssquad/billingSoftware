@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Email Template</title>
+    <title>Classic Invoice Email Template</title>
     <style>
         /* Email-safe fonts and reset */
         body {
@@ -404,20 +404,26 @@
                         <!-- Invoice Number -->
                         <div class="info-row">
                             <span style="color: #6b7280;">#</span>
-                            <span style="color: #4b5563;">Invoice #INV-2024-001</span>
+                            <span style="color: #4b5563;">
+                                Invoice No: {{ $invoice->invoice_no }}
+                            </span>
                             <span style="color: #9ca3af; margin-left: 4px;">📋</span>
                         </div>
                         
                         <!-- Invoice Date -->
                         <div class="info-row">
                             <span style="color: #6b7280;">📅</span>
-                            <span style="color: #4b5563;">Invoice Date: March 15, 2024</span>
+                            <span style="color: #4b5563;">
+                            Invoice Date: {{ $invoice->invoice_date->format('F d, Y') }}
+                            </span>
                         </div>
                         
                         <!-- Due Date -->
                         <div class="info-row">
                             <span style="color: #6b7280;">⏰</span>
-                            <span style="color: #4b5563;">Due Date: April 14, 2024</span>
+                            <span style="color: #4b5563;">
+                            Due Date: {{ $invoice->due_date->format('F d, Y') }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -428,27 +434,42 @@
                     <!-- Customer Details -->
                     <div class="customer-detail">
                         <span style="color: #6b7280;">🏢</span>
-                        <span style="color: #4b5563;">TechCorp Solutions</span>
+                        {{-- <span style="color: #4b5563;">TechCorp Solutions</span> --}}
+                        <span style="color: #4b5563;">
+                        {{ $invoice->customer->name }}
+                        </span>
                     </div>
                     
                     <div class="customer-detail">
                         <span style="color: #6b7280;">✉️</span>
-                        <span style="color: #4b5563;">billing@techcorp.com</span>
+                        {{-- <span style="color: #4b5563;">billing@techcorp.com</span> --}}
+                        <span style="color: #4b5563;">
+                        {{ $invoice->customer->email }}
+                        </span>
                     </div>
                     
                     <div class="customer-detail">
                         <span style="color: #6b7280;">📞</span>
-                        <span style="color: #4b5563;">+1 (555) 123-4567</span>
+                        {{-- <span style="color: #4b5563;">+1 (555) 123-4567</span> --}}
+                        <span style="color: #4b5563;">
+                        {{ $invoice->customer->phone }}
+                        </span>
                     </div>
                     
                     <div class="customer-detail">
                         <span style="color: #6b7280;">📍</span>
-                        <span style="color: #4b5563;">123 Business Ave, Suite 100, San Francisco, CA 94105</span>
+                        {{-- <span style="color: #4b5563;">123 Business Ave, Suite 100, San Francisco, CA 94105</span> --}}
+                        <span style="color: #4b5563;">
+                        {{ $invoice->customer->billing_address }}
+                        </span>
                     </div>
                     
                     <div class="customer-detail">
                         <span style="color: #6b7280;">#</span>
-                        <span style="color: #4b5563;">GST: 27AAECS1234F1Z5</span>
+                        {{-- <span style="color: #4b5563;">GST: 27AAECS1234F1Z5</span> --}}
+                        <span style="color: #4b5563;">
+                        GST: {{ $invoice->customer->gstin }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -467,34 +488,15 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach($invoice->items as $item)
                     <tr>
-                        <td class="item-name">Web Development Services</td>
-                        <td>40</td>
-                        <td>$75.00</td>
-                        <td>10%</td>
-                        <td>$3,300.00</td>
+                        <td class="item-name">{{ $item->item_name }}</td>
+                        <td>{{ $item->quantity }}</td>
+                        <td>₹{{ number_format($item->price, 2) }}</td>
+                        <td>{{ $item->tax_percent }}%</td>
+                        <td>₹{{ number_format($item->total_amount, 2) }}</td>
                     </tr>
-                    <tr>
-                        <td class="item-name">UI/UX Design Package</td>
-                        <td>20</td>
-                        <td>$95.00</td>
-                        <td>10%</td>
-                        <td>$2,090.00</td>
-                    </tr>
-                    <tr>
-                        <td class="item-name">Hosting Setup & Configuration</td>
-                        <td>1</td>
-                        <td>$250.00</td>
-                        <td>18%</td>
-                        <td>$295.00</td>
-                    </tr>
-                    <tr>
-                        <td class="item-name">SSL Certificate (Annual)</td>
-                        <td>2</td>
-                        <td>$99.00</td>
-                        <td>10%</td>
-                        <td>$217.80</td>
-                    </tr>
+                    @endforeach
                 </tbody>
             </table>
             
@@ -580,24 +582,36 @@
                     <div class="totals-card">
                         <div class="total-row">
                             <span class="total-label">Subtotal</span>
-                            <span class="total-value">$5,302.80</span>
+                            {{-- <span class="total-value">$5,302.80</span> --}}
+                            <span class="total-value">
+                            ₹{{ number_format($invoice->subtotal, 2) }}
+                            </span>
                         </div>
                         
                         <div class="total-row">
                             <span class="total-label">Tax</span>
-                            <span class="total-value">$600.00</span>
+                            {{-- <span class="total-value">$600.00</span> --}}
+                            <span class="total-value">
+                            ₹{{ number_format($invoice->tax_amount, 2) }}
+                            </span>
                         </div>
                         
                         <div class="total-row" style="color: #16a34a;">
                             <span class="total-label">Discount</span>
-                            <span class="total-value">-$250.00</span>
+                            {{-- <span class="total-value">-$250.00</span> --}}
+                            <span class="total-value">
+                            -₹{{ number_format($invoice->discount_amount, 2) }}
+                            </span>
                         </div>
                         
                         <div class="border-top"></div>
                         
                         <div class="grand-total">
                             <span>Total</span>
-                            <span>$5,652.80</span>
+                            {{-- <span>$5,652.80</span> --}}
+                            <span>
+                            ₹{{ number_format($invoice->total_amount, 2) }}
+                            </span>
                         </div>
                         
                         <!-- Payment Status -->
@@ -620,60 +634,5 @@
             Thank you for your business!
         </div>
     </div>
-    
-    <!-- Alternative Version (Paid Status) - Uncomment to use
-    <div class="email-container" style="margin-top: 24px;">
-        <div class="invoice-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <h1 class="invoice-title">INVOICE</h1>
-                    <div style="margin-top: 16px;">
-                        <div class="info-row"><span style="color: #6b7280;">#</span><span>Invoice #INV-2024-002</span></div>
-                        <div class="info-row"><span style="color: #6b7280;">📅</span><span>Invoice Date: March 10, 2024</span></div>
-                        <div class="info-row"><span style="color: #6b7280;">⏰</span><span>Due Date: April 9, 2024</span></div>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <h3 class="customer-title">Bill To</h3>
-                    <div class="customer-detail"><span>🏢</span><span>Startup Innovations</span></div>
-                    <div class="customer-detail"><span>✉️</span><span>accounts@startup.io</span></div>
-                    <div class="customer-detail"><span>📍</span><span>456 Market Street, Austin, TX</span></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="items-section">
-            <table class="items-table">
-                <thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Tax</th><th>Total</th></tr></thead>
-                <tbody>
-                    <tr><td class="item-name">Consulting Services</td><td>10</td><td>$150.00</td><td>10%</td><td>$1,650.00</td></tr>
-                    <tr><td class="item-name">Software License</td><td>5</td><td>$99.00</td><td>10%</td><td>$544.50</td></tr>
-                </tbody>
-            </table>
-            
-            <div class="grid-container">
-                <div class="grid-left">
-                    <div class="payment-card">
-                        <h3 class="payment-title"><span>💳</span>Payment Information</h3>
-                        <div style="padding: 10px; background: white; border-radius: 6px; text-align: center;">
-                            <p style="margin: 0; color: #16a34a; font-weight: 500;">✓ Payment Completed</p>
-                            <p style="margin: 5px 0 0; font-size: 12px; color: #6b7280;">Transaction ID: TXN123456789</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="grid-right">
-                    <div class="totals-card">
-                        <div class="total-row"><span class="total-label">Subtotal</span><span>$1,995.00</span></div>
-                        <div class="total-row"><span class="total-label">Tax</span><span>$199.50</span></div>
-                        <div class="border-top"></div>
-                        <div class="grand-total"><span>Total</span><span>$2,194.50</span></div>
-                        <div class="status-badge status-paid">✓ Payment Received</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="invoice-footer">Thank you for your business!</div>
-    </div>
-    -->
 </body>
 </html>

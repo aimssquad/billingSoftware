@@ -69,7 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/me', [App\Http\Controllers\Api\Org\MeController::class, 'show']);
         Route::get('/profile', [App\Http\Controllers\Api\Org\ProfileController::class, 'show']);
-        Route::put('/profile', [App\Http\Controllers\Api\Org\ProfileController::class, 'update']);
+        Route::post('/profile', [App\Http\Controllers\Api\Org\ProfileController::class, 'update']);
         Route::get('/usage', [App\Http\Controllers\Api\Org\UsageController::class, 'index']);
         Route::get('/subscription', [App\Http\Controllers\Api\Org\SubscriptionController::class, 'show']);
         Route::post('/subscription', [SubscriptionController::class, 'store']);

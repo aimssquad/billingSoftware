@@ -18,9 +18,17 @@
 <td style="padding:30px;">
 <h2 style="margin:0;color:#0f172a;">INVOICE</h2>
 
-<p style="margin:6px 0;color:#64748b;">Invoice #: INV-2025-001</p>
-<p style="margin:6px 0;color:#64748b;">Invoice Date: 20 March 2025</p>
-<p style="margin:6px 0;color:#64748b;">Due Date: 30 March 2025</p>
+<p style="margin:6px 0;color:#64748b;">
+Invoice #: {{ $invoice->invoice_no }}
+</p>
+
+<p style="margin:6px 0;color:#64748b;">
+Invoice Date: {{ $invoice->invoice_date->format('d F Y') }}
+</p>
+
+<p style="margin:6px 0;color:#64748b;">
+Due Date: {{ $invoice->due_date->format('d F Y') }}
+</p>
 
 </td>
 </tr>
@@ -32,23 +40,23 @@
 <h3 style="margin-bottom:10px;color:#64748b;">Bill To</h3>
 
 <p style="margin:4px 0;color:#0f172a;font-weight:bold;">
-Aminul Islam
+{{ $invoice->customer->name }}
 </p>
 
 <p style="margin:4px 0;color:#64748b;">
-aminul@example.com
+{{ $invoice->customer->email }}
 </p>
 
 <p style="margin:4px 0;color:#64748b;">
-+91 9876543210
+{{ $invoice->customer->phone }}
 </p>
 
 <p style="margin:4px 0;color:#64748b;">
-Kolkata, West Bengal, India
+{{ $invoice->customer->billing_address }}
 </p>
 
 <p style="margin:4px 0;color:#64748b;">
-GSTIN: 22AAAAA0000A1Z5
+GSTIN: {{ $invoice->customer->gstin }}
 </p>
 
 </td>
@@ -72,29 +80,15 @@ GSTIN: 22AAAAA0000A1Z5
 
 <tbody>
 
+@foreach($invoice->items as $item)
 <tr>
-<td>Website Development</td>
-<td align="right">1</td>
-<td align="right">₹3000</td>
-<td align="right">18%</td>
-<td align="right">₹3540</td>
+<td>{{ $item->item_name }}</td>
+<td align="right">{{ $item->quantity }}</td>
+<td align="right">₹{{ number_format($item->price, 2) }}</td>
+<td align="right">{{ $item->tax_percent }}%</td>
+<td align="right">₹{{ number_format($item->total_amount, 2) }}</td>
 </tr>
-
-<tr>
-<td>Domain Registration</td>
-<td align="right">1</td>
-<td align="right">₹800</td>
-<td align="right">18%</td>
-<td align="right">₹944</td>
-</tr>
-
-<tr>
-<td>Hosting (1 Year)</td>
-<td align="right">1</td>
-<td align="right">₹2000</td>
-<td align="right">18%</td>
-<td align="right">₹2360</td>
-</tr>
+@endforeach
 
 </tbody>
 
@@ -116,17 +110,17 @@ GSTIN: 22AAAAA0000A1Z5
 
 <tr>
 <td style="color:#64748b;">Subtotal</td>
-<td align="right">₹5800</td>
+<td align="right">₹{{ number_format($invoice->subtotal, 2) }}</td>
 </tr>
 
 <tr>
 <td style="color:#64748b;">Tax</td>
-<td align="right">₹1044</td>
+<td align="right">₹{{ number_format($invoice->tax_amount, 2) }}</td>
 </tr>
 
 <tr>
 <td style="color:#64748b;">Discount</td>
-<td align="right">₹0</td>
+<td align="right">₹{{ number_format($invoice->discount_amount, 2) }}</td>
 </tr>
 
 <tr>
@@ -135,9 +129,8 @@ Total
 </td>
 
 <td align="right" style="font-weight:bold;color:#2563eb;border-top:1px solid #e2e8f0;padding-top:10px;">
-₹6844
+₹{{ number_format($invoice->total_amount, 2) }}
 </td>
-
 </tr>
 
 </table>

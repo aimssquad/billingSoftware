@@ -3,6 +3,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Mail;
 use App\Models\OrganizationMailSetting;
+use App\Models\OrganizationInvoiceSetting;
 use App\Mail\InvoiceSentMail;
 
 class TenantMailService
@@ -13,6 +14,16 @@ class TenantMailService
             ->where('is_active', true)
             ->first();
 
+        if (!$mailSetting) {
+            throw new \Exception("Mail setting not found");
+        }  
+        
+        $invoiceSetting = OrganizationInvoiceSetting::with('template')
+            ->where('organization_id', $organizationId)
+            ->first();
+
+        $templateSlug = $invoiceSetting?->template?->slug ?? 'default';
+
         TenantMailConfigService::configure($organizationId);
 
         Mail::mailer('tenant')
@@ -22,7 +33,8 @@ class TenantMailService
                     $invoice,
                     config('app.frontend_url'),
                     $mailSetting->from_address,
-                    $mailSetting->from_name
+                    $mailSetting->from_name,
+                    $templateSlug // ✅ pass template
                 )
             );
     }

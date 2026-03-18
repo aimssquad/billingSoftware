@@ -69,6 +69,7 @@ class InvoiceController extends Controller
     {   
         $this->ensureSameOrg($request, $invoice);
         $invoice->load('customer', 'items','organization');
+        //dd($invoice);
         return new InvoiceResource($invoice);
     }
 
@@ -116,8 +117,13 @@ class InvoiceController extends Controller
     {   
         $this->ensureSameOrg($request, $invoice);
         //dd('okk');
-        $data = $invoice->load('customer', 'items');
-        //dd($data);
+        //$data = $invoice->load('customer', 'items');
+        $invoice->load(
+            'customer',
+            'items',
+            'organization.invoiceSetting.template'
+        );
+        dd($invoice);
         $organizationId = $request->attributes->get('organization_id');
 
         try {

@@ -119,14 +119,14 @@ class ProfileController extends Controller
             'gstin'        => 'nullable|string|max:20',
             'address'      => 'nullable|string',
         ]);
-
+        //dd('okk');
         $organization->update($valid);
 
         // 2️⃣ Fetch dynamic country fields
         $countryFields = \App\Models\CountryField::where('country', $organization->country)
             ->where('is_active', true)
             ->get();
-
+        //dd($countryFields);
         $rules = [];
 
         foreach ($countryFields as $field) {
