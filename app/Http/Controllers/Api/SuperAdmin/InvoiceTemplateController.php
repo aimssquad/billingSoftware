@@ -146,13 +146,5 @@ class InvoiceTemplateController extends Controller
         ]);
     }
 
-    public function country()
-    {
-        $templates = InvoiceTemplate::where('status', true)->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $templates
-        ]);
-    }
 }

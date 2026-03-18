@@ -116,4 +116,14 @@ class CountryFieldController extends Controller
             'data' => $data
         ]);
     }
+
+    public function country()
+    {
+        $templates = CountryField::where('status', true)->select('country')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $templates
+        ]);
+    }
 }
