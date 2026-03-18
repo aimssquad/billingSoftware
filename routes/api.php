@@ -16,7 +16,7 @@ use App\Http\Controllers\Api\Org\OrganizationInvoiceSettingController;
 use App\Http\Controllers\Api\SuperAdmin\SubscriptionPlanController;
 use App\Http\Controllers\Api\SuperAdmin\CountryFieldController;
 use App\Http\Controllers\Api\SuperAdmin\InvoiceTemplateController;
-use App\Http\Controllers\Api\Superadmin\CountryController;
+use App\Http\Controllers\Api\SuperAdmin\CountryController;
 
 
 /*
