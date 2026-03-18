@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Country;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class CountryController extends Controller
 {
@@ -21,13 +22,23 @@ class CountryController extends Controller
     }
 
    
-    public function store(Request $request)
+   public function store(Request $request)
     {
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:countries,name',
             'slug' => 'nullable|string|unique:countries,slug',
             'is_active' => 'nullable|boolean',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
@@ -72,11 +83,21 @@ class CountryController extends Controller
             ], 404);
         }
 
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255|unique:countries,name,' . $id,
             'slug' => 'nullable|string|unique:countries,slug,' . $id,
             'is_active' => 'nullable|boolean',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $validated = $validator->validated();
 
         if (isset($validated['name']) && empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['name']);
