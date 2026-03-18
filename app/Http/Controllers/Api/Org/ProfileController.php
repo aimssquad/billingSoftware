@@ -22,6 +22,9 @@ class ProfileController extends Controller
         $usageSummary = app(UsageTrackingService::class)->getUsageSummary($organization->id);
         $invoiceLimit = $sub ? $sub->plan->invoice_limit : 0;
         $invoiceUsed = $usageSummary['invoice_count'] ?? 0;
+        $orgDynamicField = \App\Models\CountryField::where('country', $organization->country)
+            ->where('is_active', true)
+            ->get();
 
         return response()->json([
             'organization' => [
@@ -68,6 +71,18 @@ class ProfileController extends Controller
                 'invoice_remaining' => max(0, $invoiceLimit - $invoiceUsed),
                 'purchase_count' => $usageSummary['purchase_count'] ?? 0,
             ],
+
+            'dynamic_field' => $orgDynamicField->map(function ($field) {
+                return [
+                    'id' => $field->id,
+                    'country' => $field->country,
+                    'field_key' => $field->field_key,
+                    'field_label' => $field->field_label,
+                    'field_type' => $field->field_type,
+                    'is_required' => (bool) $field->is_required,
+                    'is_active' => (bool) $field->is_active,
+                ];
+            })->values(),
         ]);
     }
 
