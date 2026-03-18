@@ -36,7 +36,7 @@ class OrganizationInvoiceSettingController extends Controller
 
         $validator = Validator::make($request->all(), [
             'invoice_template_id' => 'required|exists:invoice_templates,id',
-            'invoice_prefix'      => 'nullable|string|max:10',
+            'invoice_prefix'      => 'nullable|string',
             //'invoice_start_no'    => 'nullable|integer|min:1'
         ]);
 

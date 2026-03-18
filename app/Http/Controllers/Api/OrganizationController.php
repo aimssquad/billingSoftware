@@ -32,14 +32,15 @@ class OrganizationController extends Controller
             'phone' => 'nullable|string|max:20',
             'gstin' => 'nullable|string|max:20',
             'address' => 'nullable|string',
+            'country' => 'nullable|string',
             'owner_name' => 'required|string|max:255',
             'owner_email' => 'required|email|unique:users,email',
             'owner_password' => 'required|string|min:8',
             'owner_phone' => 'nullable|string|max:20',
-            'subscription_plan_id' => 'required|exists:subscription_plans,id',
+            //'subscription_plan_id' => 'required|exists:subscription_plans,id',
         ]);
 
-        $plan = SubscriptionPlan::findOrFail($valid['subscription_plan_id']);
+        $plan = SubscriptionPlan::findOrFail(1);
         if ($plan->status !== 'active') {
             return response()->json(['message' => 'Selected plan is not active.'], 422);
         }
@@ -58,6 +59,7 @@ class OrganizationController extends Controller
                 'phone' => $valid['phone'] ?? null,
                 'gstin' => $valid['gstin'] ?? null,
                 'address' => $valid['address'] ?? null,
+                'country' => $valid['country'] ?? null,
                 'status' => 'active',
             ]);
 
