@@ -31,6 +31,7 @@ Route::post('/login', [App\Http\Controllers\Api\AuthController::class, 'login'])
 Route::post('/organizations/register', [App\Http\Controllers\Api\OrganizationController::class, 'register']);
 Route::post('/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
 Route::post('/password/reset', [App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
+Route::get('country', [InvoiceTemplateController::class, 'country']);
 
 
 

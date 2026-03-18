@@ -145,4 +145,14 @@ class InvoiceTemplateController extends Controller
             'message' => 'Invoice template deleted successfully'
         ]);
     }
+
+    public function country()
+    {
+        $templates = InvoiceTemplate::where('status', true)->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $templates
+        ]);
+    }
 }
