@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Org\OrganizationInvoiceSettingController;
 use App\Http\Controllers\Api\SuperAdmin\SubscriptionPlanController;
 use App\Http\Controllers\Api\SuperAdmin\CountryFieldController;
 use App\Http\Controllers\Api\SuperAdmin\InvoiceTemplateController;
+use App\Http\Controllers\Api\Superadmin\CountryController;
 
 
 /*
@@ -31,7 +32,7 @@ Route::post('/login', [App\Http\Controllers\Api\AuthController::class, 'login'])
 Route::post('/organizations/register', [App\Http\Controllers\Api\OrganizationController::class, 'register']);
 Route::post('/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
 Route::post('/password/reset', [App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
-Route::get('country', [CountryFieldController::class, 'country']);
+Route::get('countries-active', [CountryController::class, 'active']);
 
 
 
@@ -63,6 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('invoice-templates/{id}', [InvoiceTemplateController::class, 'show']);
         Route::post('invoice-templates/{id}', [InvoiceTemplateController::class, 'update']);
         Route::delete('invoice-templates/{id}', [InvoiceTemplateController::class, 'destroy']);
+
+        Route::apiResource('countries', CountryController::class);
     });
 
     // Organization-scoped (org_owner, org_user) - require organization in context
