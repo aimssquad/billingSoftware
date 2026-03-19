@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Org;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\InvoiceResource;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Services\InvoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -153,6 +154,78 @@ class InvoiceController extends Controller
     //     }
     // }
 
+    // public function sendEmail(Request $request, Invoice $invoice)
+    // {
+    //     $this->ensureSameOrg($request, $invoice);
+
+    //     $invoice->load(
+    //         'customer',
+    //         'items',
+    //         'organization.invoiceSetting.template',
+    //         'organization.defaultBankAccount'
+    //     );
+
+    //     $organizationId = $request->attributes->get('organization_id');
+
+    //     try {
+
+    //         // ✅ Get active gateway
+    //         $gateway = app(PaymentGatewayService::class)
+    //             ->getActiveGateway($organizationId);
+
+    //         $paymentLink = null;
+
+    //         // ✅ Only for Razorpay
+    //         if ($gateway && $gateway->isRazorpay()) {
+
+    //             $razor = new Api(
+    //                 $gateway->public_key,
+    //                 $gateway->secret_key
+    //             );
+
+    //             $link = $razor->paymentLink->create([
+    //                 'amount' => $invoice->total_amount * 100,
+    //                 'currency' => 'INR',
+    //                 'description' => 'Invoice #' . $invoice->invoice_no,
+
+    //                 'customer' => [
+    //                     'name' => $invoice->customer->name,
+    //                     'email' => $invoice->customer->email,
+    //                     'contact' => $invoice->customer->phone,
+    //                 ]
+    //             ]);
+
+    //             $paymentLink = $link['short_url'];
+
+    //             // ✅ Save link in DB
+    //             $invoice->update([
+    //                 'payment_link' => $paymentLink
+    //             ]);
+    //         }
+
+    //         // ✅ Send email with link
+    //         TenantMailService::send(
+    //             $organizationId,
+    //             $invoice,
+    //             $invoice->customer->email,
+    //             $paymentLink
+    //         );
+
+    //         $invoice->update(['status' => 'sent']);
+
+    //         return response()->json([
+    //             'message' => 'Invoice email sent successfully'
+    //         ]);
+
+    //     } catch (\Exception $e) {
+
+    //         return response()->json([
+    //             'message' => 'Failed to send invoice email',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
     public function sendEmail(Request $request, Invoice $invoice)
     {
         $this->ensureSameOrg($request, $invoice);
@@ -168,14 +241,12 @@ class InvoiceController extends Controller
 
         try {
 
-            // ✅ Get active gateway
             $gateway = app(PaymentGatewayService::class)
                 ->getActiveGateway($organizationId);
 
-            $paymentLink = null;
+            $paymentLink = $invoice->payment_link ?? null;
 
-            // ✅ Only for Razorpay
-            if ($gateway && $gateway->isRazorpay()) {
+            if (!$paymentLink && $gateway && $gateway->isRazorpay()) {
 
                 $razor = new Api(
                     $gateway->public_key,
@@ -191,18 +262,32 @@ class InvoiceController extends Controller
                         'name' => $invoice->customer->name,
                         'email' => $invoice->customer->email,
                         'contact' => $invoice->customer->phone,
-                    ]
+                    ],
+
+                    'callback_url' => config('app.frontend_url') . '/payment-success',
+                    'callback_method' => 'get'
                 ]);
 
                 $paymentLink = $link['short_url'];
 
-                // ✅ Save link in DB
+                // ✅ Save payment
+                Payment::create([
+                    'organization_id' => $invoice->organization_id,
+                    'invoice_id' => $invoice->id,
+                    'gateway' => 'razorpay',
+                    'transaction_id' => $link['id'], // plink_xxx
+                    'amount' => $invoice->total_amount,
+                    'status' => 'pending',
+                    'response' => json_encode($link)
+                ]);
+
+                // ✅ Save link in invoice
                 $invoice->update([
-                    'payment_link' => $paymentLink
+                    'payment_link' => $paymentLink,
+                    'payment_link_id' => $link['id']
                 ]);
             }
 
-            // ✅ Send email with link
             TenantMailService::send(
                 $organizationId,
                 $invoice,

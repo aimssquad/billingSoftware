@@ -338,4 +338,75 @@ class PaymentController extends Controller
 
         return $paymentLink;
     }
+
+    public function paymentSuccess(Request $request)
+    {
+        try {
+
+            $paymentId = $request->razorpay_payment_id;
+            $paymentLinkId = $request->razorpay_payment_link_id;
+            $status = $request->razorpay_payment_link_status;
+            //dd($request->all());    
+            if ($status !== 'paid') {
+                return response()->json(['message' => 'Payment not completed'], 400);
+            }
+
+            // ✅ Find payment using plink_id
+            $payment = Payment::where('transaction_id', $paymentLinkId)->first();
+
+            if (!$payment) {
+                return response()->json(['message' => 'Payment not found'], 404);
+            }
+
+            DB::transaction(function () use ($payment, $paymentId, $request) {
+
+                $payment->update([
+                    'status' => 'success',
+                    'payment_id' => $paymentId, // optional column
+                    'response' => json_encode($request->all())
+                ]);
+
+                Invoice::where('id', $payment->invoice_id)
+                    ->update(['status' => 'paid']);
+            });
+
+            return redirect(config('app.frontend_url') . '/payment-success?status=success');
+
+        } catch (\Exception $e) {
+
+            return redirect(config('app.frontend_url') . '/payment-failed');
+        }
+    }
+
+    public function paymentFailed(Request $request)
+    {
+        try {
+
+            $paymentLinkId = $request->razorpay_payment_link_id ?? null;
+
+            if (!$paymentLinkId) {
+                return redirect(config('app.frontend_url') . '/payment-failed');
+            }
+
+            $payment = Payment::where('transaction_id', $paymentLinkId)->first();
+
+            if ($payment) {
+
+                $payment->update([
+                    'status' => 'failed',
+                    'response' => json_encode($request->all())
+                ]);
+
+                // Optional: keep invoice as sent (not paid)
+                Invoice::where('id', $payment->invoice_id)
+                    ->update(['status' => 'sent']);
+            }
+
+            return redirect(config('app.frontend_url') . '/payment-failed?invoice_id=' . $payment->invoice_id);
+
+        } catch (\Exception $e) {
+
+            return redirect(config('app.frontend_url') . '/payment-failed');
+        }
+    }
 }

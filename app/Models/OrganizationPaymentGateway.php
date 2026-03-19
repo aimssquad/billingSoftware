@@ -40,10 +40,28 @@ class OrganizationPaymentGateway extends Model
     |--------------------------------------------------------------------------
     */
 
+    // public function setSecretKeyAttribute($value)
+    // {
+    //     if (!empty($value)) {
+    //         $this->attributes['secret_key'] = Crypt::encryptString($value);
+    //     }
+    // }
+
     public function setSecretKeyAttribute($value)
     {
         if (!empty($value)) {
-            $this->attributes['secret_key'] = Crypt::encryptString($value);
+
+            try {
+                // Try decrypt → means already encrypted
+                Crypt::decryptString($value);
+
+                // Already encrypted → store as is
+                $this->attributes['secret_key'] = $value;
+
+            } catch (\Exception $e) {
+                // Not encrypted → encrypt now
+                $this->attributes['secret_key'] = Crypt::encryptString($value);
+            }
         }
     }
 

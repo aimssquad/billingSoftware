@@ -33,7 +33,8 @@ Route::post('/organizations/register', [App\Http\Controllers\Api\OrganizationCon
 Route::post('/forgot-password', [App\Http\Controllers\Api\AuthController::class, 'forgotPassword']);
 Route::post('/password/reset', [App\Http\Controllers\Api\AuthController::class, 'resetPassword']);
 Route::get('countries-active', [CountryController::class, 'active']);
-
+Route::get('/payment-success', [PaymentController::class, 'paymentSuccess']);
+Route::get('/payment-failed', [PaymentController::class, 'paymentFailed']);
 
 
 // Protected (auth:sanctum)
